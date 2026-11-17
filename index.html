@@ -5,68 +5,127 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ObraFoto · Prototipo de muestra</title>
 <meta name="description" content="Maqueta interactiva: control del avance físico de una obra a partir de una foto del celular. Proyecto de Innovación y Emprendimiento III, INACAP.">
+<meta name="theme-color" content="#000000">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E20613'/><circle cx='16' cy='17' r='6' fill='none' stroke='white' stroke-width='3'/><rect x='11' y='7' width='10' height='3' rx='1.5' fill='white'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<header class="nav">
-  <a class="brand" href="#top"><span class="dot"></span>ObraFoto</a>
-  <nav>
-    <a href="#como">Cómo funciona</a>
-    <a href="#distinto">Qué la hace distinta</a>
-    <a href="#metas">Metas</a>
-  </nav>
+<div class="loader" id="loader" aria-hidden="true"><div class="loader-in"><span class="dot"></span>ObraFoto</div><i class="loader-bar"></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="progress" aria-hidden="true"><i id="progress"></i></div>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top"><span class="dot"></span>ObraFoto</a>
+    <nav>
+      <a href="#como">Cómo funciona</a>
+      <a href="#distinto">Qué la hace distinta</a>
+      <a href="#metas">Metas</a>
+    </nav>
+    <a class="nav-cta" href="#como">Ver demo</a>
+  </div>
 </header>
 
-<main id="top">
+<main>
 
-  <!-- HERO -->
-  <section class="hero">
-    <p class="kicker reveal">Prototipo de muestra · Maqueta</p>
-    <h1 class="reveal d1">El avance de tu obra,<br>con una sola foto.</h1>
-    <p class="lead reveal d2">Menos horas de reportería. Un avance que todos pueden comprobar.<br class="hide-m"> Sin equipos especiales: solo el celular que ya llevas.</p>
-    <a class="btn reveal d3" href="#como">Ver cómo funciona <span aria-hidden="true">↓</span></a>
-    <div class="hero-phone reveal d3" aria-hidden="true">
-      <div class="phone small">
-        <div class="notch"></div>
-        <div class="screen">
-          <div class="app-top"><span>Obra demo · Piso 3</span><b>Hoy</b></div>
-          <div class="list">
-            <div class="row"><span>Tabiquería</span><i style="--w:68%"></i><em>68%</em></div>
-            <div class="row"><span>Cielos</span><i style="--w:35%"></i><em>35%</em></div>
-            <div class="row"><span>Pintura</span><i style="--w:12%"></i><em>12%</em></div>
-            <div class="row"><span>Instalaciones</span><i style="--w:81%"></i><em>81%</em></div>
+  <!-- HERO: fijo mientras el celular sube y se endereza -->
+  <section class="hero" id="top">
+    <div class="hero-sticky">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="aur a1" aria-hidden="true"></div><div class="aur a2" aria-hidden="true"></div>
+      <div class="grid-bg" aria-hidden="true"></div>
+      <div class="hero-copy" id="heroCopy">
+        <p class="kicker intro i1">Prototipo de muestra · Maqueta</p>
+        <h1 class="split">El avance de tu obra,<br><span class="shine">con una sola foto.</span></h1>
+        <p class="lead intro i3">Menos horas de reportería. Un avance que todos pueden comprobar.<br class="hide-m"> Sin equipos especiales: solo el celular que ya llevas.</p>
+        <div class="cta-row intro i4">
+          <a class="btn" href="#como">Ver cómo funciona</a>
+          <a class="link" href="#distinto">Qué la hace distinta <span aria-hidden="true">›</span></a>
+        </div>
+      </div>
+
+      <div class="hero-device" id="heroDevice" aria-hidden="true">
+        <div class="float f1" id="f1"><small>Foto trazada</small><b>Piso 3 · Sector B</b></div>
+        <div class="float f2" id="f2"><small>Tabiquería</small><b>68% <em>avance</em></b></div>
+        <div class="float f3" id="f3"><small>Validación</small><b>&lt; 2 min</b></div>
+        <div class="phone hero-phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="app-top"><span>Obra demo · Piso 3</span><b>Hoy</b></div>
+            <div class="app-title">Avance por partida</div>
+            <div class="list" id="heroList">
+              <div class="row"><span>Tabiquería</span><em>68%</em><i style="--w:.68"></i></div>
+              <div class="row"><span>Cielos</span><em>35%</em><i style="--w:.35"></i></div>
+              <div class="row"><span>Pintura</span><em>12%</em><i style="--w:.12"></i></div>
+              <div class="row"><span>Instalaciones</span><em>81%</em><i style="--w:.81"></i></div>
+            </div>
+            <div class="fab">＋ Nueva foto</div>
+            <div class="toast" id="heroToast"><i>✓</i><div><b>Foto validada</b><small>Tabiquería · hace 2 s</small></div></div>
           </div>
-          <div class="fab">＋ Nueva foto</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PROBLEMA -->
+  <!-- PROBLEMA: texto que se ilumina palabra a palabra -->
+  <section class="statement" id="statement">
+    <div class="statement-sticky">
+      <p class="kicker">El problema</p>
+      <h2 class="words" id="words">Hoy, el control de avance le roba tiempo al terreno. Planillas a mano, cifras que nadie puede comprobar y fotos que no sirven de respaldo.</h2>
+    </div>
+  </section>
+
   <section class="problem">
     <div class="wrap">
-      <h2 class="big reveal">Hoy, el control de avance<br><span class="grad">le roba tiempo al terreno.</span></h2>
       <div class="three">
-        <div class="reveal"><b>Reportería lenta</b><p>Planillas a mano, fotos sin orden y un informe que se arma a fin de mes.</p></div>
-        <div class="reveal d1"><b>Avance subjetivo</b><p>Cada parte tiene su cifra y nadie puede comprobarla. Nacen las discusiones.</p></div>
-        <div class="reveal d2"><b>Fotos sin trazabilidad</b><p>Una foto sin fecha, lugar ni partida no sirve como respaldo.</p></div>
+        <div class="pcard reveal" data-speed=".04"><span class="ico">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <b>Reportería lenta</b><p>Planillas a mano, fotos sin orden y un informe que se arma a fin de mes.</p></div>
+        <div class="pcard reveal d1" data-speed=".09"><span class="ico">
+          <svg viewBox="0 0 24 24"><path d="M4 18 10 6l4 8 2-4 4 8"/></svg></span>
+          <b>Avance subjetivo</b><p>Cada parte tiene su cifra y nadie puede comprobarla. Nacen las discusiones.</p></div>
+        <div class="pcard reveal d2" data-speed=".14"><span class="ico">
+          <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><circle cx="12" cy="12.5" r="3.5"/><path d="M4 4l16 17"/></svg></span>
+          <b>Fotos sin trazabilidad</b><p>Una foto sin fecha, lugar ni partida no sirve como respaldo.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- STORY: sticky phone -->
+  <!-- CINTA DE PARTIDAS -->
+  <section class="marquee" aria-label="Partidas que se pueden controlar">
+    <div class="mq-row" id="mq1"><div class="mq-track">
+      <span>Tabiquería</span><span>Cielos</span><span>Pintura</span><span>Instalaciones</span><span>Obra gruesa</span><span>Revestimientos</span><span>Pavimentos</span><span>Terminaciones</span>
+    </div></div>
+    <div class="mq-row rev" id="mq2"><div class="mq-track">
+      <span>Fecha</span><span>Ubicación</span><span>Partida</span><span>Evidencia</span><span>Curva S</span><span>Carta Gantt</span><span>ITO</span><span>Mandante</span>
+    </div></div>
+  </section>
+
+  <!-- STORY: celular fijo -->
   <section id="como" class="story">
+    <div class="story-head wrap">
+      <p class="kicker reveal">Cómo funciona</p>
+      <h2 class="big reveal split">Cinco pasos.<br><span class="grad">Una sola foto.</span></h2>
+    </div>
     <div class="story-grid">
       <div class="stage">
+        <div class="stage-glow" id="stageGlow"></div>
+        <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="phone-tilt" id="phoneTilt">
         <div class="phone" id="phone" data-step="1">
+          <div class="flash"></div>
           <div class="notch"></div>
 
           <!-- 1 CAMARA -->
           <div class="screen s s1">
             <div class="cam">
               <div class="wall"></div>
+              <div class="scanline"></div>
               <div class="corners"><i></i><i></i><i></i><i></i></div>
               <div class="tag">Partida · Tabiquería</div>
               <div class="shutter"><span></span></div>
@@ -89,10 +148,11 @@
             <div class="app-top"><span>Estimación</span><b>Tabiquería</b></div>
             <div class="ring-wrap">
               <svg viewBox="0 0 120 120" class="ring">
+                <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6b73"/><stop offset="1" stop-color="#E20613"/></linearGradient></defs>
                 <circle cx="60" cy="60" r="50" class="bg"/>
                 <circle cx="60" cy="60" r="50" class="fg" id="ringfg"/>
               </svg>
-              <div class="ring-n"><b>68%</b><small>avance estimado</small></div>
+              <div class="ring-n"><b id="ringN">68%</b><small>avance estimado</small></div>
             </div>
             <div class="cmp"><span>Planificado</span><b>72%</b></div>
             <div class="cmp warn"><span>Diferencia</span><b>−4 pts</b></div>
@@ -122,6 +182,7 @@
             <div class="legend"><span><i class="l1"></i>Planificado</span><span><i class="l2"></i>Real</span></div>
             <div class="share"><span>12 fotos · historial por partida</span><b>Enviar a ITO</b></div>
           </div>
+        </div>
         </div>
       </div>
 
@@ -156,16 +217,43 @@
     <p class="demo-note">Maqueta ilustrativa: los datos y la estimación mostrados son de ejemplo.</p>
   </section>
 
-  <!-- DISTINTO -->
+  <!-- FRASE QUE CRECE -->
+  <section class="zoom" id="zoom">
+    <div class="zoom-sticky">
+      <h2 id="zoomText">Solo el celular<br>que ya llevas.</h2>
+    </div>
+  </section>
+
+  <!-- DISTINTO: bento -->
   <section id="distinto" class="diff">
     <div class="wrap">
       <p class="kicker reveal">Qué la hace distinta</p>
-      <h2 class="big reveal d1">Pensada para la obra real.</h2>
-      <div class="cards">
-        <div class="card reveal"><h4>Sin equipos nuevos</h4><p>Usa el celular que el profesional ya lleva. Menos costo y una adopción más simple que cascos o escáneres.</p></div>
-        <div class="card reveal d1"><h4>Foto trazable sin esfuerzo</h4><p>Fecha, ubicación y partida automáticas: evidencia lista para la ITO y el mandante.</p></div>
-        <div class="card reveal d2"><h4>El profesional decide</h4><p>La estimación es un apoyo. El jefe de obra la revisa y corrige antes de informar.</p></div>
-        <div class="card reveal d3"><h4>Hecha para la obra mediana</h4><p>Se conecta con la carta Gantt y la curva S que ya usan, y toma flujos probados en seguros y agricultura.</p></div>
+      <h2 class="big reveal split">Pensada para<br>la obra real.</h2>
+      <div class="bento">
+        <div class="tile t-a reveal">
+          <span class="ico"><svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span>
+          <h4>Sin equipos nuevos</h4>
+          <p>Usa el celular que el profesional ya lleva. Menos costo y una adopción más simple que cascos o escáneres.</p>
+          <div class="tile-big"><span class="grad">$0</span><small>en hardware adicional</small></div>
+        </div>
+        <div class="tile t-b reveal d1">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>
+          <h4>Foto trazable sin esfuerzo</h4>
+          <p>Fecha, ubicación y partida automáticas: evidencia lista para la ITO y el mandante.</p>
+          <div class="pin" aria-hidden="true"><i></i><i></i><i></i><span></span></div>
+        </div>
+        <div class="tile t-c reveal d1">
+          <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>
+          <h4>El profesional decide</h4>
+          <p>La estimación es un apoyo. El jefe de obra la revisa y corrige antes de informar.</p>
+          <div class="approve" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Validado por jefe de obra</span></div>
+        </div>
+        <div class="tile t-d reveal d2">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 16l4-5 4 3 6-8"/></svg></span>
+          <h4>Hecha para la obra mediana</h4>
+          <p>Se conecta con la carta Gantt y la curva S que ya usan, y toma flujos probados en seguros y agricultura.</p>
+          <div class="gantt" aria-hidden="true"><i style="--s:0;--l:.45"></i><i style="--s:.2;--l:.5"></i><i style="--s:.42;--l:.35"></i><i style="--s:.6;--l:.38"></i></div>
+        </div>
       </div>
     </div>
   </section>
@@ -174,6 +262,7 @@
   <section id="metas" class="metrics">
     <div class="wrap">
       <p class="kicker reveal">Metas a validar con el prototipo</p>
+      <h2 class="big reveal split">Lo que queremos<br><span class="grad">comprobar.</span></h2>
       <div class="mgrid">
         <div class="m reveal"><b><span data-count="50" data-pre="≈ " data-suf="%">≈ 50%</span></b><p>menos horas de reportería</p></div>
         <div class="m reveal d1"><b><span data-count="100" data-suf="%">100%</span></b><p>de las fotos con fecha, ubicación y partida</p></div>
@@ -181,6 +270,14 @@
         <div class="m reveal d3"><b>↓</b><p>discrepancias entre el avance informado y el real</p></div>
       </div>
       <p class="fine reveal">Son metas por comprobar, no resultados obtenidos.</p>
+    </div>
+  </section>
+
+  <!-- CIERRE -->
+  <section class="final">
+    <div class="wrap">
+      <h2 class="reveal split">El avance de tu obra,<br><span class="shine">con una sola foto.</span></h2>
+      <a class="btn reveal d1" href="#top">Volver al inicio <span aria-hidden="true">↑</span></a>
     </div>
   </section>
 
