@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ObraFoto · Prototipo de muestra</title>
+<meta name="description" content="Maqueta interactiva: control del avance físico de una obra a partir de una foto del celular. Proyecto de Innovación y Emprendimiento III, INACAP.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E20613'/><circle cx='16' cy='17' r='6' fill='none' stroke='white' stroke-width='3'/><rect x='11' y='7' width='10' height='3' rx='1.5' fill='white'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top"><span class="dot"></span>ObraFoto</a>
+  <nav>
+    <a href="#como">Cómo funciona</a>
+    <a href="#distinto">Qué la hace distinta</a>
+    <a href="#metas">Metas</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="kicker reveal">Prototipo de muestra · Maqueta</p>
+    <h1 class="reveal d1">El avance de tu obra,<br>con una sola foto.</h1>
+    <p class="lead reveal d2">Menos horas de reportería. Un avance que todos pueden comprobar.<br class="hide-m"> Sin equipos especiales: solo el celular que ya llevas.</p>
+    <a class="btn reveal d3" href="#como">Ver cómo funciona <span aria-hidden="true">↓</span></a>
+    <div class="hero-phone reveal d3" aria-hidden="true">
+      <div class="phone small">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="app-top"><span>Obra demo · Piso 3</span><b>Hoy</b></div>
+          <div class="list">
+            <div class="row"><span>Tabiquería</span><i style="--w:68%"></i><em>68%</em></div>
+            <div class="row"><span>Cielos</span><i style="--w:35%"></i><em>35%</em></div>
+            <div class="row"><span>Pintura</span><i style="--w:12%"></i><em>12%</em></div>
+            <div class="row"><span>Instalaciones</span><i style="--w:81%"></i><em>81%</em></div>
+          </div>
+          <div class="fab">＋ Nueva foto</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEMA -->
+  <section class="problem">
+    <div class="wrap">
+      <h2 class="big reveal">Hoy, el control de avance<br><span class="grad">le roba tiempo al terreno.</span></h2>
+      <div class="three">
+        <div class="reveal"><b>Reportería lenta</b><p>Planillas a mano, fotos sin orden y un informe que se arma a fin de mes.</p></div>
+        <div class="reveal d1"><b>Avance subjetivo</b><p>Cada parte tiene su cifra y nadie puede comprobarla. Nacen las discusiones.</p></div>
+        <div class="reveal d2"><b>Fotos sin trazabilidad</b><p>Una foto sin fecha, lugar ni partida no sirve como respaldo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY: sticky phone -->
+  <section id="como" class="story">
+    <div class="story-grid">
+      <div class="stage">
+        <div class="phone" id="phone" data-step="1">
+          <div class="notch"></div>
+
+          <!-- 1 CAMARA -->
+          <div class="screen s s1">
+            <div class="cam">
+              <div class="wall"></div>
+              <div class="corners"><i></i><i></i><i></i><i></i></div>
+              <div class="tag">Partida · Tabiquería</div>
+              <div class="shutter"><span></span></div>
+            </div>
+          </div>
+
+          <!-- 2 TRAZABILIDAD -->
+          <div class="screen s s2">
+            <div class="photo"><div class="wall"></div></div>
+            <div class="chips">
+              <div class="chip c1"><small>Fecha y hora</small><b>17 nov 2026 · 10:42</b></div>
+              <div class="chip c2"><small>Ubicación</small><b>Piso 3 · Sector B</b></div>
+              <div class="chip c3"><small>Partida</small><b>Tabiquería</b></div>
+            </div>
+            <p class="note">Asociado automáticamente. Sin escribir nada.</p>
+          </div>
+
+          <!-- 3 ESTIMACION -->
+          <div class="screen s s3">
+            <div class="app-top"><span>Estimación</span><b>Tabiquería</b></div>
+            <div class="ring-wrap">
+              <svg viewBox="0 0 120 120" class="ring">
+                <circle cx="60" cy="60" r="50" class="bg"/>
+                <circle cx="60" cy="60" r="50" class="fg" id="ringfg"/>
+              </svg>
+              <div class="ring-n"><b>68%</b><small>avance estimado</small></div>
+            </div>
+            <div class="cmp"><span>Planificado</span><b>72%</b></div>
+            <div class="cmp warn"><span>Diferencia</span><b>−4 pts</b></div>
+            <p class="note">Estimación de ejemplo, comparada con la planificación.</p>
+          </div>
+
+          <!-- 4 VALIDACION -->
+          <div class="screen s s4">
+            <div class="app-top"><span>Validar avance</span><b>Tabiquería</b></div>
+            <div class="photo mini"><div class="wall"></div></div>
+            <div class="val-n"><b id="valn">68</b><span>%</span></div>
+            <input id="valr" type="range" min="0" max="100" value="68" aria-label="Ajustar porcentaje de avance">
+            <p class="note">Ajusta si no estás de acuerdo.</p>
+            <div class="btns"><span class="b ghost">Corregir</span><span class="b solid">Confirmar</span></div>
+          </div>
+
+          <!-- 5 INFORME -->
+          <div class="screen s s5">
+            <div class="app-top"><span>Avance de obra</span><b>Curva S</b></div>
+            <svg viewBox="0 0 220 130" class="curve">
+              <line x1="10" y1="115" x2="215" y2="115" class="ax"/>
+              <line x1="10" y1="10" x2="10" y2="115" class="ax"/>
+              <path d="M10 112 C 60 108, 80 70, 115 55 S 190 20, 212 14" class="plan"/>
+              <path d="M10 112 C 60 110, 80 78, 115 63 S 150 50, 160 47" class="real" id="realpath"/>
+              <circle cx="160" cy="47" r="4" class="pt"/>
+            </svg>
+            <div class="legend"><span><i class="l1"></i>Planificado</span><span><i class="l2"></i>Real</span></div>
+            <div class="share"><span>12 fotos · historial por partida</span><b>Enviar a ITO</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <article class="step" data-step="1">
+          <span class="num">01</span>
+          <h3>Toma la foto.</h3>
+          <p>Desde el celular, en el lugar y en el momento del trabajo. Sin cascos con cámara, sin escáneres, sin pasos de oficina.</p>
+        </article>
+        <article class="step" data-step="2">
+          <span class="num">02</span>
+          <h3>Queda trazada.</h3>
+          <p>Fecha, ubicación y partida se asocian solas a cada foto. Cero etiquetado a mano y un respaldo que sí sirve.</p>
+        </article>
+        <article class="step" data-step="3">
+          <span class="num">03</span>
+          <h3>Una estimación objetiva.</h3>
+          <p>La app propone un porcentaje de avance por partida y lo compara con lo planificado, con un criterio que todos pueden revisar.</p>
+        </article>
+        <article class="step" data-step="4">
+          <span class="num">04</span>
+          <h3>Tú decides.</h3>
+          <p>La tecnología apoya, no juzga. El profesional revisa y corrige antes de que la cifra sea oficial. Prueba mover el control.</p>
+        </article>
+        <article class="step" data-step="5">
+          <span class="num">05</span>
+          <h3>Todo conectado.</h3>
+          <p>El historial y la curva S se actualizan. La ITO y el mandante ven la misma evidencia, sin discutir cifras.</p>
+        </article>
+      </div>
+    </div>
+    <p class="demo-note">Maqueta ilustrativa: los datos y la estimación mostrados son de ejemplo.</p>
+  </section>
+
+  <!-- DISTINTO -->
+  <section id="distinto" class="diff">
+    <div class="wrap">
+      <p class="kicker reveal">Qué la hace distinta</p>
+      <h2 class="big reveal d1">Pensada para la obra real.</h2>
+      <div class="cards">
+        <div class="card reveal"><h4>Sin equipos nuevos</h4><p>Usa el celular que el profesional ya lleva. Menos costo y una adopción más simple que cascos o escáneres.</p></div>
+        <div class="card reveal d1"><h4>Foto trazable sin esfuerzo</h4><p>Fecha, ubicación y partida automáticas: evidencia lista para la ITO y el mandante.</p></div>
+        <div class="card reveal d2"><h4>El profesional decide</h4><p>La estimación es un apoyo. El jefe de obra la revisa y corrige antes de informar.</p></div>
+        <div class="card reveal d3"><h4>Hecha para la obra mediana</h4><p>Se conecta con la carta Gantt y la curva S que ya usan, y toma flujos probados en seguros y agricultura.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METAS -->
+  <section id="metas" class="metrics">
+    <div class="wrap">
+      <p class="kicker reveal">Metas a validar con el prototipo</p>
+      <div class="mgrid">
+        <div class="m reveal"><b><span data-count="50" data-pre="≈ " data-suf="%">≈ 50%</span></b><p>menos horas de reportería</p></div>
+        <div class="m reveal d1"><b><span data-count="100" data-suf="%">100%</span></b><p>de las fotos con fecha, ubicación y partida</p></div>
+        <div class="m reveal d2"><b><span data-count="2" data-pre="&lt; " data-suf=" min">&lt; 2 min</span></b><p>de validación por partida</p></div>
+        <div class="m reveal d3"><b>↓</b><p>discrepancias entre el avance informado y el real</p></div>
+      </div>
+      <p class="fine reveal">Son metas por comprobar, no resultados obtenidos.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>ObraFoto</b> · nombre de trabajo
+    <p>Prototipo de muestra. Proyecto de Innovación y Emprendimiento III · Ingeniería en Informática · INACAP.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
