@@ -249,9 +249,10 @@ function pintarCurva(lista, filtro) {
   svg += `<polyline fill="none" stroke="#86868b" stroke-width="2" stroke-dasharray="5 4"
     points="${x(desde)},${y(0)} ${x(inicioPlan)},${y(0)} ${x(hoy)},${y(planHoy)}"/>`;
 
-  // Línea real + puntos (con un solo dato se ve el punto)
+  // Línea real: igual que el plan, parte en 0 % al inicio de la obra; los puntos son los días con registros
   if (reales.length) {
-    svg += `<polyline fill="none" stroke="#E20613" stroke-width="2.5" points="${reales.map((p) => `${x(p.t)},${y(p.v)}`).join(" ")}"/>`;
+    const linea = reales[0].t > inicioPlan ? [{ t: inicioPlan, v: 0 }, ...reales] : reales;
+    svg += `<polyline fill="none" stroke="#E20613" stroke-width="2.5" points="${linea.map((p) => `${x(p.t)},${y(p.v)}`).join(" ")}"/>`;
     svg += reales.map((p) => `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="4" fill="#E20613"><title>${corto(p.t)}: ${Math.round(p.v)}%</title></circle>`).join("");
   } else {
     svg += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">Sin registros reales todavía</text>`;
