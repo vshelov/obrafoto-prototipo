@@ -444,3 +444,11 @@ footer p{margin-top:6px}
   .hero .lead{display:none}
   .cta-row .btn{padding:10px 12px;font-size:13px}
 }
+
+/* que nada se salga del ancho de la pantalla (si no, el celular permite alejar el zoom y la página se ve rara) */
+html,body{overflow-x:clip}
+.stage{overflow-x:clip}
+@media (max-width:860px){ .grain{inset:0;animation:none} }
+
+/* separación entre los botones del cierre */
+.final .btn{margin:6px}
