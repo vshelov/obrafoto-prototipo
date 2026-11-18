@@ -1,0 +1,77 @@
+/* Mismos colores que la landing */
+:root{
+  --bg:#000; --card:#101012; --ink:#f5f5f7; --mute:#86868b; --line:rgba(255,255,255,.12);
+  --red:#E20613; --red2:#ff6b73; --ok:#30d158;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+[hidden]{display:none!important}
+
+/* Barra superior */
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.brand{font-weight:600;font-size:17px;display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--red)}
+.volver{font-size:13px;color:var(--mute)}
+
+main{max-width:560px;margin:0 auto;padding:20px 16px 60px}
+.vista{display:flex;flex-direction:column;gap:14px;animation:entrar .35s ease}
+@keyframes entrar{from{opacity:0;transform:translateY(8px)}}
+
+h1{font-size:34px;line-height:1.08;letter-spacing:-.03em}
+h2{font-size:24px;letter-spacing:-.02em}
+.kicker{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--red2)}
+.mute{color:var(--mute)}
+.chico{font-size:13px}
+
+/* Botones */
+.btn{font:inherit;font-weight:600;border:0;border-radius:99px;padding:13px 22px;cursor:pointer;background:var(--red);color:#fff;transition:transform .2s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.sec{background:var(--card);border:1px solid var(--line);flex:1}
+.btn.grande{font-size:17px;padding:16px;width:100%}
+.fila{display:flex;gap:10px}
+
+/* Pasos del formulario */
+.paso{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.paso label,.paso .lbl{font-weight:600}
+.paso b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--red);font-size:12px;margin-right:6px}
+select,input[type=text],input[type=file]{font:inherit;color:var(--ink);background:#1c1c1e;border:1px solid var(--line);border-radius:10px;padding:10px;width:100%}
+input[type=range]{width:100%;accent-color:var(--red)}
+.preview{width:100%;max-height:320px;object-fit:cover;border-radius:12px}
+
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.nums small{display:block;color:var(--mute);font-size:12px}
+.nums strong{font-size:22px}
+.simulada{font-size:13px;color:#ffd60a;background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.3);border-radius:10px;padding:8px}
+
+.estado{font-size:14px;min-height:1.2em}
+.estado.ok{color:var(--ok)}
+.estado.error{color:var(--red2)}
+.aviso{background:rgba(226,6,19,.15);color:var(--red2);padding:10px 16px;font-size:14px;text-align:center}
+
+/* Pestañas */
+.tabs{display:flex;background:var(--card);border-radius:99px;padding:4px}
+.tabs button{flex:1;font:inherit;font-weight:600;color:var(--mute);background:none;border:0;border-radius:99px;padding:9px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--red);color:#fff}
+
+/* Historial */
+.lista{list-style:none;display:flex;flex-direction:column;gap:10px}
+.lista li{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;align-items:center}
+.lista img{width:72px;height:72px;object-fit:cover;border-radius:10px;flex:none;background:#1c1c1e}
+.lista .pct{margin-left:auto;font-size:22px;font-weight:700;color:var(--ok)}
+.lista p{font-size:13px;color:var(--mute)}
+
+/* Curva */
+#grafico{width:100%;height:auto;background:var(--card);border-radius:14px}
+#grafico text{fill:var(--mute);font-size:10px;font-family:var(--font)}
+.leyenda{font-size:13px;display:flex;flex-wrap:wrap;gap:4px 16px}
+.leyenda span{white-space:nowrap}
+.leyenda i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.l-plan{background:var(--mute)}
+.l-real{background:var(--red)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}

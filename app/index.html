@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ObraFoto · Prototipo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23E20613'/><circle cx='16' cy='17' r='6' fill='none' stroke='white' stroke-width='3'/><rect x='11' y='7' width='10' height='3' rx='1.5' fill='white'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#" data-ir="inicio"><span class="dot"></span>ObraFoto</a>
+  <a class="volver" href="../">← Landing</a>
+</header>
+
+<!-- Aviso si falta configurar Supabase o no hay conexión -->
+<p id="aviso" class="aviso" hidden></p>
+
+<main>
+
+  <!-- ===== INICIO ===== -->
+  <section id="v-inicio" class="vista">
+    <p class="kicker">Prototipo funcional</p>
+    <h1>Registro de avance<br>con una foto</h1>
+    <p class="mute">Toma una foto de la partida, revisa la estimación y valida el avance.</p>
+    <button class="btn grande" data-ir="nuevo">+ Nuevo registro</button>
+    <div class="fila">
+      <button class="btn sec" data-ir="historial">Historial</button>
+      <button class="btn sec" data-ir="curva">Curva de avance</button>
+    </div>
+  </section>
+
+  <!-- ===== NUEVO REGISTRO ===== -->
+  <section id="v-nuevo" class="vista" hidden>
+    <h2>Nuevo registro</h2>
+
+    <div class="paso">
+      <label for="partida"><b>1</b> Partida</label>
+      <select id="partida">
+        <option value="">Elige una partida…</option>
+      </select>
+    </div>
+
+    <div class="paso">
+      <label for="foto"><b>2</b> Foto</label>
+      <input id="foto" type="file" accept="image/*" capture="environment">
+      <img id="preview" class="preview" alt="Vista previa de la foto" hidden>
+    </div>
+
+    <div class="paso">
+      <span class="lbl"><b>3</b> Datos automáticos</span>
+      <p>Fecha: <span id="fecha">—</span></p>
+      <p>GPS: <span id="gps">Buscando ubicación…</span></p>
+      <label for="ubicacion" class="mute chico">Ubicación en obra (opcional, ej. "Piso 3 · Sector B")</label>
+      <input id="ubicacion" type="text" maxlength="80" placeholder="Piso 3 · Sector B">
+    </div>
+
+    <div class="paso" id="paso-estimacion" hidden>
+      <span class="lbl"><b>4</b> Estimación</span>
+      <div class="nums">
+        <div><small>Estimado</small><strong id="est">—</strong></div>
+        <div><small>Planificado hoy</small><strong id="plan">—</strong></div>
+        <div><small>Diferencia</small><strong id="dif">—</strong></div>
+      </div>
+      <p class="simulada">Estimación de ejemplo (simulada). El avance real lo define el profesional.</p>
+    </div>
+
+    <div class="paso" id="paso-validar" hidden>
+      <label for="slider"><b>5</b> Validar avance: <strong id="valor">0%</strong></label>
+      <input id="slider" type="range" min="0" max="100" step="1" value="0">
+    </div>
+
+    <button id="confirmar" class="btn grande" disabled>Confirmar</button>
+    <p id="estado" class="estado" role="status" aria-live="polite"></p>
+  </section>
+
+  <!-- ===== HISTORIAL / CURVA (misma vista, dos pestañas) ===== -->
+  <section id="v-datos" class="vista" hidden>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-historial" data-ir="historial">Historial</button>
+      <button role="tab" id="tab-curva" data-ir="curva">Curva de avance</button>
+    </div>
+
+    <label for="filtro" class="mute chico">Partida</label>
+    <select id="filtro">
+      <option value="">Todas</option>
+    </select>
+    <p id="estado-datos" class="estado" role="status" aria-live="polite"></p>
+
+    <div id="historial">
+      <ul id="lista" class="lista"></ul>
+    </div>
+
+    <div id="curva" hidden>
+      <svg id="grafico" viewBox="0 0 360 220" role="img" aria-label="Curva de avance planificado vs real"></svg>
+      <p class="leyenda"><span><i class="l-plan"></i>Planificado (ejemplo)</span> <span><i class="l-real"></i>Real (promedio validado por día)</span></p>
+      <p class="mute chico">El plan es una rampa de ejemplo desde 0 % (hace 30 días) hasta el planificado de hoy.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- Supabase desde CDN (versión fija) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
