@@ -65,7 +65,27 @@ const pct = (v) => num(v) + " %";
 const pts = (v) => (v > 0 ? "+" : "") + num(v) + " pts";
 
 // ---------- Navegación entre vistas ----------
+// Cada vista queda en la URL (#nuevo, #historial, #curva) para que el botón atrás del navegador
+// vuelva a la vista anterior en vez de salir a la landing.
+const VISTAS = ["inicio", "nuevo", "historial", "curva"];
 function ir(destino) {
+  if (location.hash === "#" + destino) mostrar(destino);
+  else location.hash = destino; // dispara hashchange → mostrar
+}
+// Cada entrada del historial guarda su profundidad dentro de la app (n), para que "Volver" sepa si hay a dónde volver.
+let nivel = history.state?.n ?? 0;
+if (history.state == null) history.replaceState({ n: 0 }, "");
+window.addEventListener("hashchange", () => {
+  if (history.state == null) history.replaceState({ n: nivel + 1 }, ""); // entrada nueva creada por ir()
+  nivel = history.state.n;
+  mostrar(location.hash.slice(1));
+});
+// Botón "← Volver": regresa a la vista anterior; si se entró directo a esta vista, va al inicio.
+document.querySelectorAll(".atras").forEach((b) =>
+  b.addEventListener("click", () => (nivel > 0 ? history.back() : ir("inicio")))
+);
+function mostrar(destino) {
+  if (!VISTAS.includes(destino)) destino = "inicio";
   $("v-inicio").hidden = destino !== "inicio";
   $("v-nuevo").hidden = destino !== "nuevo";
   $("v-datos").hidden = destino !== "historial" && destino !== "curva";
@@ -313,31 +333,79 @@ const sinRegistros = () => {
   return true;
 };
 
-// Excel con SheetJS: hojas Resumen, Por partida y Registros.
+// Excel con xlsx-js-style (SheetJS con estilos): hojas Resumen, Por partida y Registros.
+const XC = { rojo: "E20613", oscuro: "1D1D1F", gris: "6E6E73", zebra: "F5F5F7", borde: "D2D2D7", verde: "1E8E3E", azul: "0066CC" };
+const XF = { pct: '0.0" %"', pts: '+0.0" pts";-0.0" pts";0.0" pts"', fecha: "dd-mm-yyyy hh:mm" };
+const linea = { style: "thin", color: { rgb: XC.borde } };
+const bordes = { top: linea, bottom: linea, left: linea, right: linea };
+const FILA0 = 4; // filas: título, subtítulo, espacio, encabezado; los datos parten en la 5.ª
+// Fecha como número de Excel en hora local, para que se pueda ordenar y filtrar.
+const fechaExcel = (f) => { const t = new Date(f).getTime(); return (t - new Date(t).getTimezoneOffset() * 60000) / DIA_MS + 25569; };
+
+// Hoja con banda de título, encabezado oscuro, filas cebra con bordes; formato(fila, col) da el formato numérico.
+function hojaExcel(titulo, encabezado, filas, anchos, formato = () => undefined) {
+  const n = encabezado.length;
+  const ws = XLSX.utils.aoa_to_sheet([[titulo], [`${OBRA} · generado el ${new Date().toLocaleString("es-CL")}`], [], encabezado, ...filas]);
+  ws["!merges"] = [0, 1].map((r) => ({ s: { r, c: 0 }, e: { r, c: n - 1 } }));
+  ws["!cols"] = anchos.map((wch) => ({ wch }));
+  ws["!rows"] = [{ hpt: 30 }, { hpt: 18 }, { hpt: 8 }, { hpt: 24 }];
+  ws.A1.s = { font: { bold: true, sz: 16, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: XC.rojo } }, alignment: { vertical: "center", indent: 1 } };
+  ws.A2.s = { font: { italic: true, color: { rgb: XC.gris } }, alignment: { indent: 1 } };
+  encabezado.forEach((_, c) => {
+    ws[XLSX.utils.encode_cell({ r: 3, c })].s = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: XC.oscuro } },
+      alignment: { horizontal: c ? "center" : "left", vertical: "center", wrapText: true }, border: bordes };
+  });
+  filas.forEach((fila, i) => fila.forEach((v, c) => {
+    const celda = ws[XLSX.utils.encode_cell({ r: FILA0 + i, c })];
+    if (!celda) return;
+    const z = formato(i, c);
+    if (z) celda.z = z;
+    // Diferencias negativas en rojo y positivas en verde
+    const color = z === XF.pts && v ? (v < 0 ? XC.rojo : XC.verde) : XC.oscuro;
+    celda.s = { font: { color: { rgb: color }, bold: z === XF.pts }, border: bordes,
+      fill: i % 2 ? { fgColor: { rgb: XC.zebra } } : undefined,
+      alignment: { horizontal: typeof v === "number" ? "center" : "left", vertical: "center" } };
+  }));
+  return ws;
+}
+const conFiltro = (ws, nFilas, nCols) => { ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 3, c: 0 }, e: { r: 3 + nFilas, c: nCols - 1 } }) }; };
+
 $("btn-excel").addEventListener("click", () => {
   if (sinRegistros()) return;
   if (!window.XLSX) return mostrarEstado("No se pudo cargar la librería de Excel. Revisa tu conexión y recarga.", "error", "estado-datos");
   const a = calcularAvance(registros);
-  const hoja = (filas) => XLSX.utils.aoa_to_sheet(filas);
   const libro = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(libro, hoja([
-    ["Obra", OBRA],
-    ["Fecha de generación", new Date().toLocaleString("es-CL")],
-    ["Avance real (%)", a.real],
-    ["Avance planificado (%)", a.plan],
-    ["Desviación (pts)", a.desv],
-  ]), "Resumen");
-  XLSX.utils.book_append_sheet(libro, hoja([
-    ["Partida", "Peso (%)", "Planificado (%)", "Real, último validado (%)", "Diferencia (pts)"],
-    ...a.filas.map((f) => [f.nombre, f.peso, f.plan, f.real, f.dif]),
-  ]), "Por partida");
-  const regs = hoja([
-    ["Fecha y hora", "Partida", "Ubicación", "Avance estimado (%)", "Avance validado (%)", "Foto"],
-    ...registros.map((r) => [new Date(r.created_at).toLocaleString("es-CL"), r.partida, r.ubicacion, r.avance_estimado, r.avance_validado, r.foto_url]),
-  ]);
-  // La columna Foto queda como enlace clicable
-  registros.forEach((r, i) => { const c = regs[XLSX.utils.encode_cell({ r: i + 1, c: 5 })]; if (c && r.foto_url) c.l = { Target: r.foto_url }; });
-  XLSX.utils.book_append_sheet(libro, regs, "Registros");
+
+  XLSX.utils.book_append_sheet(libro, hojaExcel("Resumen del avance", ["Indicador", "Valor"], [
+    ["Avance real", a.real],
+    ["Avance planificado", a.plan],
+    ["Desviación", a.desv],
+    ["Registros en el período", registros.length],
+  ], [32, 18], (i) => [XF.pct, XF.pct, XF.pts][i]), "Resumen");
+
+  const partidas = [...a.filas.map((f) => [f.nombre, f.peso, f.plan, f.real, f.dif]), ["Total obra (ponderado)", 100, a.plan, a.real, a.desv]];
+  const wsP = hojaExcel("Avance por partida", ["Partida", "Peso", "Planificado", "Real (último validado)", "Diferencia"],
+    partidas, [26, 10, 14, 22, 14], (_, c) => [undefined, XF.pct, XF.pct, XF.pct, XF.pts][c]);
+  // Fila de total destacada
+  for (let c = 0; c < 5; c++) {
+    const s = wsP[XLSX.utils.encode_cell({ r: FILA0 + partidas.length - 1, c })].s;
+    s.font.bold = true; s.fill = { fgColor: { rgb: "FDE7E8" } }; s.border = { ...bordes, top: { style: "medium", color: { rgb: XC.rojo } } };
+  }
+  XLSX.utils.book_append_sheet(libro, wsP, "Por partida");
+
+  const wsR = hojaExcel("Registros de avance", ["Fecha y hora", "Partida", "Ubicación", "Avance estimado", "Avance validado", "Foto"],
+    registros.map((r) => [fechaExcel(r.created_at), r.partida, r.ubicacion ?? "", r.avance_estimado, r.avance_validado, r.foto_url || ""]),
+    [18, 16, 26, 16, 16, 12], (_, c) => [XF.fecha, undefined, undefined, XF.pct, XF.pct][c]);
+  // La columna Foto muestra "Ver foto" como enlace clicable
+  registros.forEach((r, i) => {
+    const celda = wsR[XLSX.utils.encode_cell({ r: FILA0 + i, c: 5 })];
+    if (!celda || !r.foto_url) return;
+    celda.v = "Ver foto"; celda.l = { Target: r.foto_url };
+    celda.s.font = { color: { rgb: XC.azul }, underline: true }; celda.s.alignment.horizontal = "center";
+  });
+  conFiltro(wsR, registros.length, 6);
+  XLSX.utils.book_append_sheet(libro, wsR, "Registros");
+
   XLSX.writeFile(libro, `avance_obra_${dia(Date.now())}.xlsx`);
 });
 
@@ -378,4 +446,4 @@ $("btn-pdf").addEventListener("click", async () => {
   window.print();
 });
 
-ir("inicio");
+mostrar(location.hash.slice(1)); // al recargar se queda en la vista donde estaba

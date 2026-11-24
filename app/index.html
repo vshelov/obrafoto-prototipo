@@ -33,6 +33,7 @@
 
   <!-- ===== NUEVO REGISTRO ===== -->
   <section id="v-nuevo" class="vista" hidden>
+    <button class="atras">← Volver</button>
     <h2>Nuevo registro</h2>
 
     <div class="paso">
@@ -77,6 +78,7 @@
 
   <!-- ===== HISTORIAL / CURVA (misma vista, dos pestañas) ===== -->
   <section id="v-datos" class="vista" hidden>
+    <button class="atras">← Volver</button>
     <div class="paso">
       <span class="lbl">Avance de la obra</span>
       <div class="nums">
@@ -126,7 +128,8 @@
 
 <!-- Supabase y SheetJS (Excel) desde CDN (versiones fijas) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- xlsx-js-style: SheetJS con soporte de estilos (colores, bordes, formatos) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
 </body>
