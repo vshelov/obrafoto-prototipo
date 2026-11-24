@@ -2,8 +2,15 @@
 // Flujo: partida → foto → datos automáticos → estimación (simulada) → validar → guardar en Supabase.
 
 // ---------- Datos fijos ----------
-// Avance planificado de ejemplo para HOY, por partida.
-const PARTIDAS = { "Tabiquería": 72, "Cielos": 40, "Pintura": 20, "Instalaciones": 80 };
+// Por partida: peso en la obra (%) y avance planificado para HOY (%). Valores de ejemplo:
+// en una obra real los pesos salen del presupuesto o de las horas de cada partida.
+const OBRA = "Obra de ejemplo";
+const PARTIDAS = {
+  "Tabiquería":    { peso: 30, plan: 72 },
+  "Cielos":        { peso: 20, plan: 40 },
+  "Pintura":       { peso: 20, plan: 20 },
+  "Instalaciones": { peso: 30, plan: 80 },
+};
 const DIAS_PLAN = 30; // la curva "plan" de ejemplo sube desde 0 % hace 30 días hasta el planificado de hoy
 
 const $ = (id) => document.getElementById(id);
@@ -22,15 +29,40 @@ window.addEventListener("online", () => { $("aviso").hidden = true; });
 // No hay visión artificial: devuelve el planificado ± un número aleatorio entre 0 y 12, dentro de 0–100.
 // Para usar un modelo real más adelante, reemplaza SOLO esta función (puede volverse async).
 function estimarAvance(foto, partida) {
-  const plan = PARTIDAS[partida];
+  const plan = PARTIDAS[partida].plan;
   const ruido = Math.round(Math.random() * 12) * (Math.random() < 0.5 ? -1 : 1);
   return Math.min(100, Math.max(0, plan + ruido));
 }
 // Auto-chequeo rápido (ver consola del navegador): la estimación siempre queda en 0–100.
 for (let i = 0; i < 200; i++) for (const p in PARTIDAS) {
   const e = estimarAvance(null, p);
-  console.assert(e >= 0 && e <= 100 && Math.abs(e - PARTIDAS[p]) <= 12, "estimarAvance fuera de rango", p, e);
+  console.assert(e >= 0 && e <= 100 && Math.abs(e - PARTIDAS[p].plan) <= 12, "estimarAvance fuera de rango", p, e);
 }
+
+// ---------- Avance de la obra ----------
+// Real de una partida = su último avance validado (0 si no tiene registros).
+// Real de la obra = Σ(peso × real) / Σ pesos. Plan de la obra = Σ(peso × plan) / Σ pesos. Desviación = real − plan.
+// `regs` debe venir del más nuevo al más antiguo (así los entrega cargarRegistros).
+const r1 = (v) => Math.round(v * 10) / 10;
+function calcularAvance(regs) {
+  let pesos = 0, real = 0, plan = 0;
+  const filas = Object.entries(PARTIDAS).map(([nombre, p]) => {
+    const ultimo = regs.find((r) => r.partida === nombre);
+    const realP = ultimo ? Number(ultimo.avance_validado) : 0;
+    pesos += p.peso; real += p.peso * realP; plan += p.peso * p.plan;
+    return { nombre, peso: p.peso, plan: p.plan, real: realP, dif: realP - p.plan };
+  });
+  return { filas, real: r1(real / pesos), plan: r1(plan / pesos), desv: r1((real - plan) / pesos) };
+}
+// Auto-chequeo con el ejemplo del documento: reales 68, 35, 12, 81 → 54,1 % real; 57,6 % plan; −3,5 pts.
+{
+  const a = calcularAvance([68, 35, 12, 81].map((v, i) => ({ partida: Object.keys(PARTIDAS)[i], avance_validado: v })));
+  console.assert(a.real === 54.1 && a.plan === 57.6 && a.desv === -3.5, "calcularAvance no cuadra con el ejemplo", a);
+}
+
+const num = (v) => v.toLocaleString("es-CL", { maximumFractionDigits: 1 });
+const pct = (v) => num(v) + " %";
+const pts = (v) => (v > 0 ? "+" : "") + num(v) + " pts";
 
 // ---------- Navegación entre vistas ----------
 function ir(destino) {
@@ -53,7 +85,7 @@ document.querySelectorAll("[data-ir]").forEach((el) =>
 
 // Llenar los <select> de partidas
 for (const p in PARTIDAS) {
-  $("partida").add(new Option(`${p} (plan hoy ${PARTIDAS[p]} %)`, p));
+  $("partida").add(new Option(`${p} (plan hoy ${PARTIDAS[p].plan} %)`, p));
   $("filtro").add(new Option(p, p));
 }
 
@@ -102,7 +134,7 @@ function actualizar() {
   if (!listo) return;
 
   estimado = estimarAvance(foto, partida);
-  const plan = PARTIDAS[partida];
+  const plan = PARTIDAS[partida].plan;
   const dif = estimado - plan;
   $("est").textContent = estimado + "%";
   $("plan").textContent = plan + "%";
@@ -190,8 +222,22 @@ function pintar() {
   const filtro = $("filtro").value;
   const lista = filtro ? registros.filter((r) => r.partida === filtro) : registros;
   pintarHistorial(lista);
-  pintarCurva(lista, filtro);
+  $("grafico").innerHTML = svgCurva(lista, filtro);
+  pintarAvance();
 }
+
+// Bloque "Avance de la obra": siempre con todos los registros (no depende del filtro).
+function pintarAvance() {
+  const a = calcularAvance(registros);
+  $("obra-real").textContent = pct(a.real);
+  $("obra-plan").textContent = pct(a.plan);
+  $("obra-desv").textContent = pts(a.desv);
+  $("tabla-partidas").innerHTML = tablaPartidas(a);
+}
+
+const tablaPartidas = (a) => `
+  <thead><tr><th>Partida</th><th>Peso</th><th>Plan</th><th>Real</th><th>Dif.</th></tr></thead>
+  <tbody>${a.filas.map((f) => `<tr><td>${esc(f.nombre)}</td><td>${f.peso}%</td><td>${f.plan}%</td><td>${f.real}%</td><td>${pts(f.dif)}</td></tr>`).join("")}</tbody>`;
 
 // Escapa texto escrito por usuarios antes de meterlo en HTML (evita inyección de código).
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -215,10 +261,10 @@ function pintarHistorial(lista) {
 const dia = (fecha) => new Date(fecha).toLocaleDateString("sv-SE");
 const DIA_MS = 86400000;
 
-function pintarCurva(lista, filtro) {
-  // Plan de hoy: el de la partida filtrada, o el promedio de todas.
-  const valores = Object.values(PARTIDAS);
-  const planHoy = filtro ? PARTIDAS[filtro] : valores.reduce((a, b) => a + b, 0) / valores.length;
+// Devuelve el contenido SVG de la curva (se usa en la app y en el informe PDF).
+function svgCurva(lista, filtro) {
+  // Plan de hoy: el de la partida filtrada, o el planificado ponderado de la obra.
+  const planHoy = filtro ? PARTIDAS[filtro].plan : calcularAvance([]).plan;
 
   // Real: promedio de avances validados por día.
   const porDia = {};
@@ -257,7 +303,79 @@ function pintarCurva(lista, filtro) {
   } else {
     svg += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">Sin registros reales todavía</text>`;
   }
-  $("grafico").innerHTML = svg;
+  return svg;
 }
+
+// ---------- Descargas (todo en el navegador) ----------
+const sinRegistros = () => {
+  if (registros.length) return false;
+  mostrarEstado("Aún no hay registros para descargar.", "error", "estado-datos");
+  return true;
+};
+
+// Excel con SheetJS: hojas Resumen, Por partida y Registros.
+$("btn-excel").addEventListener("click", () => {
+  if (sinRegistros()) return;
+  if (!window.XLSX) return mostrarEstado("No se pudo cargar la librería de Excel. Revisa tu conexión y recarga.", "error", "estado-datos");
+  const a = calcularAvance(registros);
+  const hoja = (filas) => XLSX.utils.aoa_to_sheet(filas);
+  const libro = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(libro, hoja([
+    ["Obra", OBRA],
+    ["Fecha de generación", new Date().toLocaleString("es-CL")],
+    ["Avance real (%)", a.real],
+    ["Avance planificado (%)", a.plan],
+    ["Desviación (pts)", a.desv],
+  ]), "Resumen");
+  XLSX.utils.book_append_sheet(libro, hoja([
+    ["Partida", "Peso (%)", "Planificado (%)", "Real, último validado (%)", "Diferencia (pts)"],
+    ...a.filas.map((f) => [f.nombre, f.peso, f.plan, f.real, f.dif]),
+  ]), "Por partida");
+  const regs = hoja([
+    ["Fecha y hora", "Partida", "Ubicación", "Avance estimado (%)", "Avance validado (%)", "Foto"],
+    ...registros.map((r) => [new Date(r.created_at).toLocaleString("es-CL"), r.partida, r.ubicacion, r.avance_estimado, r.avance_validado, r.foto_url]),
+  ]);
+  // La columna Foto queda como enlace clicable
+  registros.forEach((r, i) => { const c = regs[XLSX.utils.encode_cell({ r: i + 1, c: 5 })]; if (c && r.foto_url) c.l = { Target: r.foto_url }; });
+  XLSX.utils.book_append_sheet(libro, regs, "Registros");
+  XLSX.writeFile(libro, `avance_obra_${dia(Date.now())}.xlsx`);
+});
+
+// PDF: arma un informe claro y abre la ventana de impresión ("Guardar como PDF" o compartir en celular).
+$("btn-pdf").addEventListener("click", async () => {
+  if (sinRegistros()) return;
+  const a = calcularAvance(registros);
+  $("informe").innerHTML = `
+    <h1>Informe de avance de obra</h1>
+    <p>${esc(OBRA)} · ${new Date().toLocaleString("es-CL")}</p>
+    <div class="nums">
+      <div><small>Avance real</small><strong>${pct(a.real)}</strong></div>
+      <div><small>Planificado</small><strong>${pct(a.plan)}</strong></div>
+      <div><small>Desviación</small><strong>${pts(a.desv)}</strong></div>
+    </div>
+    <h2>Por partida</h2>
+    <table class="tabla">${tablaPartidas(a)}</table>
+    <h2>Curva de avance (plan vs real)</h2>
+    <svg class="curva" viewBox="0 0 360 220">${svgCurva(registros, "")}</svg>
+    <h2>Fotos recientes</h2>
+    <div class="fotos">${registros.slice(0, 6).map((r) => `
+      <figure><img src="${esc(r.foto_url)}" alt="Foto de ${esc(r.partida)}">
+      <figcaption>${esc(r.partida)} · ${new Date(r.created_at).toLocaleDateString("es-CL")}</figcaption></figure>`).join("")}</div>
+    <p class="nota">La estimación inicial es simulada; el avance informado fue validado por el profesional.</p>`;
+
+  // Espera las fotos (máx. 5 s). Si una no carga, se quita y el informe sale igual.
+  mostrarEstado("Preparando informe…", "", "estado-datos");
+  await Promise.all([...$("informe").querySelectorAll("img")].map((img) => new Promise((listo) => {
+    img.onload = listo;
+    img.onerror = () => { img.closest("figure").remove(); listo(); };
+    setTimeout(listo, 5000);
+  })));
+  mostrarEstado("", "", "estado-datos");
+
+  const titulo = document.title;
+  document.title = `informe_avance_${dia(Date.now())}`; // el navegador lo propone como nombre del PDF
+  window.addEventListener("afterprint", () => { document.title = titulo; }, { once: true });
+  window.print();
+});
 
 ir("inicio");

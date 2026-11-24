@@ -77,6 +77,26 @@
 
   <!-- ===== HISTORIAL / CURVA (misma vista, dos pestañas) ===== -->
   <section id="v-datos" class="vista" hidden>
+    <div class="paso">
+      <span class="lbl">Avance de la obra</span>
+      <div class="nums">
+        <div><small>Real</small><strong id="obra-real">—</strong></div>
+        <div><small>Planificado</small><strong id="obra-plan">—</strong></div>
+        <div><small>Desviación</small><strong id="obra-desv">—</strong></div>
+      </div>
+      <details class="como">
+        <summary>¿Cómo se calcula?</summary>
+        <p>Cada partida pesa un porcentaje de la obra. El avance real de una partida es el <b>último avance validado</b> por el profesional (0 % si aún no tiene registros).</p>
+        <p>Avance de la obra = suma de (peso × avance de cada partida) ÷ suma de los pesos. Lo mismo con el planificado. La desviación es real − planificado, en puntos.</p>
+        <table class="tabla" id="tabla-partidas"></table>
+        <p class="mute chico">Los pesos son de ejemplo. En una obra real salen del presupuesto o de las horas de cada partida.</p>
+      </details>
+      <div class="fila">
+        <button class="btn sec" id="btn-excel">Descargar Excel</button>
+        <button class="btn sec" id="btn-pdf">Descargar PDF</button>
+      </div>
+    </div>
+
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-historial" data-ir="historial">Historial</button>
       <button role="tab" id="tab-curva" data-ir="curva">Curva de avance</button>
@@ -101,8 +121,12 @@
 
 </main>
 
-<!-- Supabase desde CDN (versión fija) -->
+<!-- Informe para PDF: solo se ve al imprimir (lo llena app.js) -->
+<section id="informe" class="informe"></section>
+
+<!-- Supabase y SheetJS (Excel) desde CDN (versiones fijas) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
 </body>
