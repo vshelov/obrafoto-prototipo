@@ -51,6 +51,12 @@ input[type=range]{width:100%;accent-color:var(--red)}
 .estado{font-size:14px;min-height:1.2em}
 .estado.ok{color:var(--ok)}
 .estado.error{color:var(--red2)}
+.guia{font-size:13px;color:var(--mute);margin-top:4px}
+.guardado{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:10;width:min(92vw,420px);
+  display:flex;align-items:center;justify-content:center;gap:12px;padding:20px 16px;border-radius:16px;
+  background:#1e8e3e;color:#fff;font-size:22px;font-weight:700;box-shadow:0 10px 40px rgba(0,0,0,.6);animation:entra .3s ease-out}
+.guardado span{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#fff;color:#1e8e3e;font-size:22px}
+@keyframes entra{from{opacity:0;transform:translate(-50%,-12px)}}
 .aviso{background:rgba(226,6,19,.15);color:var(--red2);padding:10px 16px;font-size:14px;text-align:center}
 
 /* Pestañas */

@@ -211,8 +211,9 @@ $("confirmar").addEventListener("click", async () => {
     });
     if (error) throw new Error("No se pudo guardar el registro: " + error.message);
 
-    mostrarEstado("✓ Registro guardado", "ok");
-    setTimeout(() => ir("historial"), 1200);
+    mostrarEstado("", "");
+    $("guardado").hidden = false;
+    setTimeout(() => { $("guardado").hidden = true; ir("historial"); }, 3000);
   } catch (err) {
     mostrarEstado(err.message || "Error inesperado", "error");
     $("confirmar").disabled = false;
@@ -281,18 +282,31 @@ function pintarHistorial(lista) {
 const dia = (fecha) => new Date(fecha).toLocaleDateString("sv-SE");
 const DIA_MS = 86400000;
 
+// Línea real: para cada día con registros, el avance con calcularAvance (la misma función del bloque
+// "Avance de la obra") usando solo los registros hasta ese día; si una partida aún no tiene, cuenta 0 %.
+// El último punto es "Hoy" = valor actual del bloque. Con filtro, es el último avance validado de esa partida.
+function curvaReal(lista, filtro) {
+  const valor = (regs) => (filtro ? calcularAvance(regs).filas.find((f) => f.nombre === filtro).real : calcularAvance(regs).real);
+  const dias = [...new Set(lista.map((r) => dia(r.created_at)))].sort();
+  if (!dias.length) return [];
+  if (dias.at(-1) !== dia(Date.now())) dias.push(dia(Date.now()));
+  return dias.map((d) => ({ t: new Date(d + "T12:00").getTime(), v: valor(lista.filter((r) => dia(r.created_at) <= d)) }));
+}
+// Auto-chequeo: cada punto es calcularAvance de los registros hasta ese día, y el último es el del bloque.
+{
+  const n = Object.keys(PARTIDAS), ahora = Date.now(), ayer = ahora - DIA_MS;
+  const regs = [[n[0], 68, ahora], [n[1], 35, ahora], [n[0], 50, ayer], [n[3], 81, ayer]]
+    .map(([partida, avance_validado, created_at]) => ({ partida, avance_validado, created_at }));
+  const c = curvaReal(regs, "");
+  console.assert(c.length === 2 && c[1].v === calcularAvance(regs).real && c[0].v === calcularAvance(regs.slice(2)).real, "curvaReal no cuadra con calcularAvance", c);
+}
+
 // Devuelve el contenido SVG de la curva (se usa en la app y en el informe PDF).
 function svgCurva(lista, filtro) {
   // Plan de hoy: el de la partida filtrada, o el planificado ponderado de la obra.
   const planHoy = filtro ? PARTIDAS[filtro].plan : calcularAvance([]).plan;
 
-  // Real: promedio de avances validados por día.
-  const porDia = {};
-  for (const r of lista) (porDia[dia(r.created_at)] ||= []).push(r.avance_validado);
-  const reales = Object.keys(porDia).sort().map((d) => ({
-    t: new Date(d + "T12:00").getTime(),
-    v: porDia[d].reduce((a, b) => a + b, 0) / porDia[d].length,
-  }));
+  const reales = curvaReal(lista, filtro);
 
   // Eje X: desde hace 30 días (o el registro más antiguo) hasta hoy.
   const hoy = new Date(dia(Date.now()) + "T12:00").getTime();
@@ -319,7 +333,7 @@ function svgCurva(lista, filtro) {
   if (reales.length) {
     const linea = reales[0].t > inicioPlan ? [{ t: inicioPlan, v: 0 }, ...reales] : reales;
     svg += `<polyline fill="none" stroke="#E20613" stroke-width="2.5" points="${linea.map((p) => `${x(p.t)},${y(p.v)}`).join(" ")}"/>`;
-    svg += reales.map((p) => `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="4" fill="#E20613"><title>${corto(p.t)}: ${Math.round(p.v)}%</title></circle>`).join("");
+    svg += reales.map((p) => `<circle cx="${x(p.t)}" cy="${y(p.v)}" r="4" fill="#E20613"><title>${p.t === hoy ? "Hoy" : corto(p.t)}: ${pct(p.v)}</title></circle>`).join("");
   } else {
     svg += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">Sin registros reales todavía</text>`;
   }

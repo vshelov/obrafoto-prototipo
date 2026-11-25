@@ -17,6 +17,9 @@
 <!-- Aviso si falta configurar Supabase o no hay conexión -->
 <p id="aviso" class="aviso" hidden></p>
 
+<!-- Aviso grande al guardar un registro -->
+<div id="guardado" class="guardado" role="alert" hidden><span aria-hidden="true">✓</span> Registro guardado</div>
+
 <main>
 
   <!-- ===== INICIO ===== -->
@@ -69,7 +72,8 @@
 
     <div class="paso" id="paso-validar" hidden>
       <label for="slider"><b>5</b> Validar avance: <strong id="valor">0%</strong></label>
-      <input id="slider" type="range" min="0" max="100" step="1" value="0">
+      <input id="slider" type="range" min="0" max="100" step="1" value="0" aria-describedby="guia-slider">
+      <p id="guia-slider" class="guia">↔ Mueve el control para ajustar el % si no coincide con la obra</p>
     </div>
 
     <button id="confirmar" class="btn grande" disabled>Confirmar</button>
